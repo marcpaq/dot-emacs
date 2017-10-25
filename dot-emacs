@@ -1,24 +1,94 @@
+;; first: packages
+;;
+;; Thanks:
+;;
+;; https://stable.melpa.org/#/getting-started
+
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                    (not (gnutls-available-p))))
+       (url (concat (if no-ssl "http" "https") "://stable.melpa.org/packages/")))
+  (add-to-list 'package-archives (cons "melpa" url) t))
 (package-initialize)
 
-(if (display-graphic-p)
-    (progn
-      (scroll-bar-mode -1)
-      (tool-bar-mode -1)
-      (global-set-key (kbd "C-`") 'other-window)
-      (set-default-font "Mono-10"))
-  (display-time-mode 1))
+;; look & feel
 
-(load-theme 'tango-dark)
-(menu-bar-mode -1)
-(global-font-lock-mode t)
-(setq make-backup-files nil)
-(setq inhibit-splash-screen t)
+(let ((frame-type (framep-on-display)))
+
+  (when (eq frame-type t) ;; character-only terminal
+    (display-time-mode 1))
+
+  (when (eq frame-type 'x) ;; X
+    (fringe-mode '(1 . 1))
+    (global-set-key (kbd "C-`") 'other-window)
+    (set-face-font 'default "Mono-11")
+    (scroll-bar-mode -1)
+    (tool-bar-mode -1))
+
+  (when (eq frame-type 'w32) ;; MS-Windows
+    (fringe-mode '(1 . 1))
+    (global-set-key (kbd "C-`") 'other-window)
+    (scroll-bar-mode -1)
+    (set-face-font 'default "Consolas-11")
+    (setq shell-dirstack-query "dir")
+    (tool-bar-mode -1)))
+
 (column-number-mode 1)
+(global-font-lock-mode t)
+(load-theme 'tango-dark)
+(make-face-italic 'font-lock-comment-face)
+(menu-bar-mode -1)
+(setq inhibit-splash-screen t)
+(setq-default indent-tabs-mode nil)
+(setq-default initial-scratch-message nil)
 (show-paren-mode 1)
 (transient-mark-mode 1)
-(put 'upcase-region 'disabled nil)
 
+;; Editing
+
+(global-set-key "\M-g" 'goto-line)
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+(setq make-backup-files nil)
+(setq version-control 'never)
+
+;; XML
+
+(defun my-nxml-mode-hook ()
+  (defun my-pretty-print-xml-region (begin end)
+    "Pretty format XML markup in region. You need to have
+nxml-mode to do this.  The function inserts linebreaks to
+separate tags that have nothing but whitespace between them.  It
+then indents the markup by using nxml's indentation rules.
+
+Thanks: 
+
+http://blog.bookworm.at/2007/03/pretty-print-xml-with-emacs.html"
+    (interactive "r")
+    (save-excursion
+      (nxml-mode)
+      (goto-char begin)
+      (while (search-forward-regexp "\>[ \\t]*\<" nil t)
+    (backward-char) (insert "\n"))
+      (indent-region begin end))
+    (message "Ah, much better!"))
+ 
+  (setq nxml-slash-auto-complete-flag 1))
+
+(add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
+
+;; org-mode
+
+(setq org-agenda-todo-list-sublevels nil)
+(setq org-archive-location "::* Archived Tasks")
 (setq org-enforce-todo-dependencies t)
+(setq org-html-head-include-default-style nil)
+(setq org-log-done 'time)
+
+;; last: start-up screen
+;;
+;; ~/.emacs.bmk
+
+(bookmark-bmenu-list)
+(switch-to-buffer "*Bookmark List*")
