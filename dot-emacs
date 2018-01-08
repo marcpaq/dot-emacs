@@ -87,6 +87,18 @@ http://blog.bookworm.at/2007/03/pretty-print-xml-with-emacs.html"
 (setq org-html-head-include-default-style nil)
 (setq org-log-done 'time)
 
+;; c-mode
+
+(defun my-c-mode-hook ()
+  (setq c-basic-offset 8
+	tab-width 8
+	indent-tabs-mode t))
+(add-hook 'c-mode-common-hook 'my-c-mode-hook)
+
+;; tramp
+
+(setq password-cache-expiry nil)
+
 ;; last: start-up screen
 ;;
 ;; ~/.emacs.bmk
