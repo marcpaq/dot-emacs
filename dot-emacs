@@ -25,6 +25,12 @@
     (scroll-bar-mode -1)
     (tool-bar-mode -1))
 
+  (when (eq frame-type 'ns) ;; Mac OS
+    (fringe-mode '(1 . 1))
+    (global-set-key (kbd "C-`") 'other-window)
+    (scroll-bar-mode -1)
+    (tool-bar-mode -1))
+
   (when (eq frame-type 'w32) ;; MS-Windows
     (add-to-list 'exec-path "C:/Program Files/7-Zip") ; for Zip-Archive mode
     (fringe-mode '(1 . 1))
