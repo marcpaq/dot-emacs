@@ -110,6 +110,7 @@ http://blog.bookworm.at/2007/03/pretty-print-xml-with-emacs.html"
 (add-hook 'c-mode-common-hook 'my-c-mode-hook)
 
 ;; sh-mode
+
 (defun my-sh-mode-hook ()
   (setq-local tab-width 8)
   (setq-local indent-tabs-mode t))
