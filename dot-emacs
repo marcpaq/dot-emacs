@@ -120,6 +120,7 @@ http://blog.bookworm.at/2007/03/pretty-print-xml-with-emacs.html"
 ;; tramp
 
 (setq password-cache-expiry nil)
+(setq tramp-histfile-override t)
 
 ;; markdown
 
