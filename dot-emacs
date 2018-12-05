@@ -15,7 +15,7 @@
 
 ;; Don't let customize mangle this file.
 (setq custom-file (concat user-emacs-directory "custom.el"))
-(when (file-exists-p custom-file) (load custom-file))
+(load custom-file 'noerror)
 
 ;; look & feel
 
@@ -30,32 +30,43 @@
 (show-paren-mode 1)
 (transient-mark-mode 1)
 
+;; Thanks: https://www.emacswiki.org/emacs/AlarmBell
+(setq visible-bell t)
+(setq ring-bell-function
+      (lambda ()
+        (let ((orig-fg (face-foreground 'mode-line)))
+          (set-face-foreground 'mode-line "#ffffff")
+          (run-with-idle-timer
+           0.1 nil
+           (lambda (fg) (set-face-foreground 'mode-line fg))
+           orig-fg))))
+
 (when (display-graphic-p)
-    (fringe-mode '(1 . 1))
-    (global-set-key (kbd "C-`") 'other-window)
-    (scroll-bar-mode -1)
-    (tool-bar-mode -1)
-    (setq-default line-spacing 0.1))
+  (fringe-mode '(1 . 1))
+  (global-set-key (kbd "C-`") 'other-window)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)
+  (setq-default line-spacing 0.1))
 
 (let ((frame-type (framep-on-display)))
   (cond
    ;; X
    ((eq frame-type 'x)
     (set-face-font 'default "Mono-11"))
-
+   
    ;; Mac OS
    ((eq frame-type 'ns)
     (setq ns-command-modifier nil) ;; Pressing Command accidentally is a pain in the ass
     (set-face-font 'default "Menlo-14")
     (when (require 'exec-path-from-shell nil 'noerror)
       (exec-path-from-shell-initialize)))
-
+   
    ;; Windows
    ((eq frame-type 'w32)
     (add-to-list 'exec-path "C:/Program Files/7-Zip") ; for Zip-Archive mode
     (set-face-font 'default "Consolas-11")
     (setq shell-dirstack-query "dir"))
-
+   
    ;; everything else
    (t
     (display-time-mode 1))))
@@ -86,10 +97,10 @@ http://blog.bookworm.at/2007/03/pretty-print-xml-with-emacs.html"
       (nxml-mode)
       (goto-char begin)
       (while (search-forward-regexp "\>[ \\t]*\<" nil t)
-    (backward-char) (insert "\n"))
+        (backward-char) (insert "\n"))
       (indent-region begin end))
     (message "Ah, much better!"))
-
+  
   (setq nxml-slash-auto-complete-flag 1))
 
 (add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
@@ -97,19 +108,26 @@ http://blog.bookworm.at/2007/03/pretty-print-xml-with-emacs.html"
 ;; org-mode
 
 (setq org-agenda-todo-list-sublevels nil)
-(setq org-archive-location "::* Archived Tasks")
+(setq org-archive-location "::* archived")
 (setq org-enforce-todo-dependencies t)
 (setq org-html-head-include-default-style nil)
 (setq org-log-done 'time)
+(setq org-refile-targets '((nil . (:tag . "project"))
+                           (nil . (:tag . "deferred"))
+                           (nil . (:tag . "reference"))))
 
-;; c-mode
+;; c-mode, awk-mode, and so on
+
+(setq c-default-style '((c-mode . "bsd")
+                        (awk-mode . "awk")
+                        (java-mode . "java")
+                        (other . "free-group-style")))
 
 (defun my-c-mode-hook ()
   (setq-local c-basic-offset 8)
   (setq-local tab-width 8)
   (setq-local indent-tabs-mode t)
-  (c-toggle-auto-newline 1)
-  (c-set-style "bsd"))
+  (c-toggle-auto-newline 1))
 
 (add-hook 'c-mode-common-hook 'my-c-mode-hook)
 
@@ -124,7 +142,10 @@ http://blog.bookworm.at/2007/03/pretty-print-xml-with-emacs.html"
 ;; tramp
 
 (setq password-cache-expiry nil)
-(setq tramp-histfile-override t)
+
+;; shell
+
+(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 
 ;; markdown
 
