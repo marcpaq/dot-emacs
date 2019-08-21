@@ -29,17 +29,8 @@
 (setq-default initial-scratch-message nil)
 (show-paren-mode 1)
 (transient-mark-mode 1)
-
-;; Thanks: https://www.emacswiki.org/emacs/AlarmBell
 (setq visible-bell t)
-(setq ring-bell-function
-      (lambda ()
-        (let ((orig-fg (face-foreground 'mode-line)))
-          (set-face-foreground 'mode-line "#ffffff")
-          (run-with-idle-timer
-           0.1 nil
-           (lambda (fg) (set-face-foreground 'mode-line fg))
-           orig-fg))))
+(display-time-mode 1)
 
 (when (display-graphic-p)
   (fringe-mode '(1 . 1))
@@ -68,8 +59,7 @@
     (setq shell-dirstack-query "dir"))
    
    ;; everything else
-   (t
-    (display-time-mode 1))))
+   (t nil)))
 
 ;; editing
 
