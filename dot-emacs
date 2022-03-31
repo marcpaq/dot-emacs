@@ -5,13 +5,8 @@
 ;; https://stable.melpa.org/#/getting-started
 
 (require 'package)
-(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                    (not (gnutls-available-p))))
-       (proto (if no-ssl "http" "https")))
-  (add-to-list 'package-archives
-               (cons "melpa-stable"
-                     (concat proto "://stable.melpa.org/packages/")) t))
-(package-initialize)
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(when (< emacs-major-version 27) (package-initialize))
 
 ;; Don't let customize mangle this file.
 (setq custom-file (concat user-emacs-directory "custom.el"))
@@ -49,6 +44,8 @@
    ((eq frame-type 'ns)
     (setq ns-command-modifier nil) ;; Pressing Command accidentally is a pain in the ass
     (set-face-font 'default "Menlo-14")
+    
+    ;; Install the exec-path-from-shell package for this
     (when (require 'exec-path-from-shell nil 'noerror)
       (exec-path-from-shell-initialize)))
    
@@ -150,6 +147,20 @@ http://blog.bookworm.at/2007/03/pretty-print-xml-with-emacs.html"
   (visual-line-mode 1))
 
 (add-hook 'markdown-mode-hook 'my-markdown-mode-hook)
+
+;; ts
+
+(defun my-typescript-mode-hook ()
+  (setq-local typescript-indent-level 2))
+
+(add-hook 'typescript-mode-hook 'my-typescript-mode-hook)
+
+;; js
+
+(defun my-js-mode-hook ()
+  (setq-local js-indent-level 2))
+
+(add-hook 'js-mode-hook 'my-js-mode-hook)
 
 ;; last: start-up screen
 ;;
